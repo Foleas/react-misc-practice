@@ -1,47 +1,98 @@
 //import cx from 'classnames';
 import React, { useState, useEffect } from "react";
+import "./styles.css";
 const capitalShort = require("./data/capitals-short.json");
 
 const CountryCapitalGame = () => {
   // Use console.log() for debugging
-  const [currentButton, setCurrentButton] = useState(null);
+  const [currentItem, setCurrentItem] = useState(null);
+  const [wrongPair, setWrongPair] = useState([]);
   const [allItems, setAllItems] = useState([]);
+  const [matchedItems, setMatchedItems] = useState([]);
 
   useEffect(() => {
-    console.log("capitalShort", capitalShort);
-    const countries = Object.keys(capitalShort).map((item) => item);
-    const capitals = Object.values(capitalShort).map((item) => item);
-    setAllItems(countries.concat(capitals).sort((a, b) => Math.random() - 0.5));
-  }, []);
-  console.log(allItems);
+    console.log("useEffect called");
 
-  const clickHandler = (item, index) => {
-    console.log(index);
-    const value = Object.values(capitalShort).findIndex(item);
-    console.log(value);
-    setCurrentButton(index);
+    if (!allItems.length) {
+      Object.entries(capitalShort)
+        .sort(() => Math.random() - 0.5)
+        .forEach(([country, capital], index) => {
+          setAllItems((oldState) => [
+            ...oldState,
+            {
+              id: `country-${country}`,
+              realIndex: index,
+              type: "country",
+              value: country,
+            },
+            {
+              id: `capital-${country}`,
+              realIndex: index,
+              type: "capital",
+              value: capital,
+            },
+          ]);
+        });
+    }
+  }, [allItems.length]);
+
+  const clickHandler = (clickedItem) => {
+    console.log("clickHandler");
+    if (currentItem === clickedItem) return false;
+    if (currentItem === null) {
+      setCurrentItem(clickedItem);
+      setWrongPair([]);
+    } else {
+      const findTemp = allItems.find(
+        (item) => item.value === clickedItem.value
+      );
+      console.log("findTemp", findTemp);
+      if (currentItem.realIndex === findTemp.realIndex) {
+        setMatchedItems([...matchedItems, currentItem, findTemp]);
+        setCurrentItem(null);
+      } else {
+        setWrongPair([...wrongPair, currentItem, clickedItem]);
+        setCurrentItem(null);
+      }
+    }
+  };
+
+  const sortHandler = () => {
+    // console.log("sort");
+    const allItemsTemp = [...allItems];
+    allItemsTemp.sort(() => Math.random() - 0.5);
+    setAllItems(allItemsTemp);
+    setCurrentItem(null);
   };
 
   return (
     <>
-      <div>
-        {allItems.map((item, index) => (
-          <button
-            key={`${item}-${index}`}
-            onClick={() => clickHandler(item, index)}
-            className={`${currentButton === index && "active"}`}
-          >
-            {item}
-          </button>
-        ))}
+      <div className="game-wrapper">
+        {allItems.length !== matchedItems.length ? (
+          allItems
+            .filter((item) => !matchedItems.includes(item))
+            .map((item) => {
+              const { id, value } = item;
+              return (
+                <button
+                  key={id}
+                  onClick={() => clickHandler(item)}
+                  className={`${currentItem?.id === id ? "active" : ""} ${
+                    wrongPair.includes(item) ? "wrong" : ""
+                  }`}
+                >
+                  {value}
+                </button>
+              );
+            })
+        ) : (
+          <p>Congratulations</p>
+        )}
       </div>
-      <style>{`
-            .active {
-                background-color: blue;
-                padding: 5px 10px;
-                color:   #585858;
-            }
-    `}</style>
+
+      <div className="button-actions">
+        <button onClick={() => sortHandler()}>Sort</button>
+      </div>
     </>
   );
 };

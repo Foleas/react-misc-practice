@@ -1,0 +1,37 @@
+button {
+  cursor: pointer;
+}
+
+.game-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+button.active {
+  background-color: blue;
+  color: white;
+}
+
+button.wrong {
+  background-color: red;
+  color: white;
+}
+
+.button-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.button-actions button {
+  border-radius: 0;
+  border: none;
+  background-color: black;
+  color: white;
+  font-weight: bold;
+  padding: 10px 20px;
+  text-transform: uppercase;
+}
